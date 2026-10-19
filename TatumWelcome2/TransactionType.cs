@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TatumBank.Welcome
+﻿namespace TatumWelcome2
 {
     public enum TransactionType
     {

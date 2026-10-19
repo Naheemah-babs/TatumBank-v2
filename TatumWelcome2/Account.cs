@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TatumBank.Welcome
+﻿namespace TatumWelcome2
 {
     public class Account
     {
         public string Name { get; set; } = string.Empty;
-        public string Branch {  get; set; } = string.Empty;
+        public string Branch { get; set; } = string.Empty;
 
         public string AccountNumber { get; set; } = string.Empty;
         public string Pin { get; set; } = string.Empty;
