@@ -9,5 +9,7 @@
         DataPurchase = 4,
         Deposit = 5,
 
+        Withdrawal = 6
+
     }
 }
