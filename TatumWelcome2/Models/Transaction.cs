@@ -1,4 +1,4 @@
-﻿namespace TatumWelcome2
+﻿namespace TatumWelcome2.Models
 {
     public class Transaction
     {
@@ -6,10 +6,10 @@
 
         public decimal Amount { get; set; }
 
-        public DateTime Date {  get; set; }
+        public DateTime Date { get; set; }
 
         public string Description { get; set; } = string.Empty;
 
-
+        public string? Reference { get; set; }
     }
 }

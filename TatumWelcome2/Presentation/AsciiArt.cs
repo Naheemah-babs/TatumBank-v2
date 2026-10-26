@@ -1,4 +1,4 @@
-﻿namespace TatumWelcome2;
+﻿namespace TatumWelcome2.Presentation;
 
 public static class AsciiArt
 {

@@ -1,4 +1,6 @@
-﻿namespace TatumWelcome2;
+﻿using TatumWelcome2.Models;
+
+namespace TatumWelcome2.Repositories;
 
 public static class AccountData
 {

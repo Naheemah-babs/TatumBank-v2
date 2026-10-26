@@ -1,10 +1,10 @@
-﻿namespace TatumWelcome2;
+﻿namespace TatumWelcome2.Models;
 
-public static class ServicePlans
+public static class DataPlans
 {
     public static readonly string[] Networks = { "MTN", "Airtel", "Glo", "9mobile" };
 
-    public static readonly List<DataPlan> DataPlans = new List<DataPlan>
+    public static readonly List<DataPlan> DataPlanItems = new List<DataPlan>
     {
         new DataPlan { Name = "1GB (1 day)", Price = 350m },
         new DataPlan { Name = "2GB (7 days)", Price = 700m },
