@@ -1,4 +1,6 @@
-﻿using TatumWelcome2.Models;
+﻿
+using TatumWelcome2.DTOs;
+using TatumWelcome2.Models;
 
 namespace TatumWelcome2.BLL;
 
@@ -8,8 +10,12 @@ public static class DataService
         Account account,
         string network,
         string phone,
-        DataPlan plan)
+        DataPlan plan,
+        BillPaymentService billPaymentService,
+        out string reference)
     {
+        reference = Guid.NewGuid().ToString("N");
+
         if (!DataPlans.Networks.Contains(network))
             return TransactionResult.InvalidNetwork;
 
@@ -19,8 +25,22 @@ public static class DataService
         if (!DataPlans.DataPlanItems.Contains(plan))
             return TransactionResult.InvalidPlan;
 
-        return account.Withdraw(
-            plan.Price,
-            $"Data {network} {plan.Name} {phone}");
+        BillPaymentRequestDto request = new()
+        {
+            Reference = reference,
+            BankId = "BankA",
+            AccountNumber = account.AccountNumber,
+            PaymentType = "Data",
+            Network = network,
+            PhoneNumber = phone,
+            Amount = plan.Price,
+            DataPlanName = plan.Name
+        };
+
+        return BillPurchaseService.Purchase(
+            account,
+            request,
+            billPaymentService,
+            $"Data {network} {plan.Name} {phone} Ref: {reference}");
     }
 }

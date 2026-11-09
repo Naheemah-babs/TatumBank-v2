@@ -56,4 +56,14 @@ public class BankApiClient : IBankApiClient
 
         return _httpClient.GetAsync(url);
     }
+
+    public Task<HttpResponseMessage> SendBillPaymentAsync(
+        string bankUrl,
+        BillPaymentRequestDto request)
+    {
+        string url =
+            $"{bankUrl.TrimEnd('/')}/bills/pay";
+
+        return _httpClient.PostAsJsonAsync(url, request);
+    }
 }

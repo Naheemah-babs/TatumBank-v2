@@ -16,5 +16,6 @@ public enum TransactionResult
     InvalidPhone,
 
     InvalidPlan,
-    AccountFrozen
+    AccountFrozen,
+    PaymentFailed,
 }

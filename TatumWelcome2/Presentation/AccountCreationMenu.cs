@@ -137,18 +137,16 @@ public static class AccountCreationMenu
         {
             Console.Write("Create a 4-digit PIN: ");
 
-            string input = (Console.ReadLine() ?? "").Trim();
+            string input = PinInput.ReadHiddenPin();
 
             if (input == "0")
                 return null;
 
-            if (input.Length == 4 &&
-                input.All(char.IsDigit))
+            if (input.Length == 4)
             {
                 Console.Write("Confirm PIN: ");
 
-                string confirmation =
-                    (Console.ReadLine() ?? "").Trim();
+                string confirmation = PinInput.ReadHiddenPin();
 
                 if (confirmation == "0")
                     return null;

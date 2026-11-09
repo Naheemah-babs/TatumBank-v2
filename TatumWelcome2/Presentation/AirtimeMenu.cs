@@ -1,11 +1,14 @@
-﻿using TatumWelcome2.BLL;
+﻿
+using TatumWelcome2.BLL;
 using TatumWelcome2.Models;
 
 namespace TatumWelcome2.Presentation;
 
 public static class AirtimeMenu
 {
-    public static bool Run(Account current)
+    public static bool Run(
+        Account current,
+        BillPaymentService billPaymentService)
     {
         Console.WriteLine("(Enter 0 at any step to cancel)");
 
@@ -51,10 +54,10 @@ public static class AirtimeMenu
                 return false;
             }
 
-            if (phone.Length != 11 || !phone.All(char.IsDigit))
+            if (!PhoneNumberValidator.IsValid(phone))
             {
                 Console.WriteLine(
-                    "Enter a valid 11-digit phone number.");
+                    "Enter a valid Nigerian mobile number.");
                 continue;
             }
 
@@ -82,13 +85,20 @@ public static class AirtimeMenu
 
             TransactionResult result =
                 AirtimeService.Purchase(
-                    current, network, phone, amount);
+                    current,
+                    network,
+                    phone,
+                    amount,
+                    billPaymentService,
+                    out string reference);
 
             if (result == TransactionResult.Success)
             {
                 Console.WriteLine(
                     $"{amount:N2} airtime sent to {phone}. " +
                     $"Balance: {current.Balance:N2}");
+
+                Console.WriteLine($"Reference: {reference}");
 
                 return true;
             }
@@ -99,6 +109,17 @@ public static class AirtimeMenu
                     $"You don't have enough balance. " +
                     $"Your balance is {current.Balance:N2}.");
                 continue;
+            }
+
+            if (result == TransactionResult.PaymentFailed)
+            {
+                Console.WriteLine(
+                    "Airtime purchase failed at the payment provider. " +
+                    "Your account was not debited.");
+
+                Console.WriteLine($"Reference: {reference}");
+
+                return false;
             }
 
             Console.WriteLine($"Airtime purchase failed: {result}");

@@ -6,7 +6,13 @@ using TatumWelcome2.Models;
 using TatumWelcome2.Presentation;
 using TatumWelcome2.Repositories;
 using TatumWelcome2.Services;
+using System.Globalization;
+using System.Text;
 
+Console.OutputEncoding = Encoding.UTF8;
+
+CultureInfo.DefaultThreadCurrentCulture =
+    CultureInfo.GetCultureInfo("en-NG");
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddFilter(
@@ -18,7 +24,7 @@ builder.Logging.AddFilter(
     LogLevel.Warning);
 
 // Bank A API address.
-builder.WebHost.UseUrls("http://localhost:5001");
+builder.WebHost.UseUrls("http://localhost:5000");
 
 // Shared in-memory account list.
 List<Account> accounts = AccountData.GetAccounts();
@@ -27,6 +33,7 @@ List<Account> accounts = AccountData.GetAccounts();
 builder.Services.AddSingleton<IAccountRepository>(
     new AccountRepository(accounts));
 
+
 // HTTP communication.
 builder.Services.AddHttpClient<IBankApiClient, BankApiClient>();
 
@@ -34,6 +41,7 @@ builder.Services.AddHttpClient<IBankApiClient, BankApiClient>();
 builder.Services.AddSingleton<InterbankTransferService>();
 builder.Services.AddSingleton<InterbankOutgoingTransferService>();
 builder.Services.AddSingleton(new AdminService(accounts));
+builder.Services.AddSingleton<BillPaymentService>();
 
 var app = builder.Build();
 
@@ -47,6 +55,9 @@ InterbankOutgoingTransferService outgoingTransferService =
 AdminService adminService =
     app.Services.GetRequiredService<AdminService>();
 
+BillPaymentService billPaymentService =
+    app.Services.GetRequiredService<BillPaymentService>();
+
 // API endpoints.
 app.MapGet(
     "/health",
@@ -54,6 +65,7 @@ app.MapGet(
 
 app.MapAccountEndpoints();
 app.MapInterbankTransferEndpoints();
+app.MapBillPaymentEndpoints();
 
 // Start API.
 var serverTask = app.RunAsync();
@@ -65,7 +77,8 @@ try
         bankApiClient,
         outgoingTransferService,
         adminService,
-        app.Configuration);
+        app.Configuration,
+        billPaymentService);
 }
 finally
 {

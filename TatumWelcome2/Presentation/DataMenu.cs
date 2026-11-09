@@ -1,11 +1,14 @@
-﻿using TatumWelcome2.BLL;
+﻿
+using TatumWelcome2.BLL;
 using TatumWelcome2.Models;
 
 namespace TatumWelcome2.Presentation;
 
 public static class DataMenu
 {
-    public static bool Run(Account current)
+    public static bool Run(
+        Account current,
+        BillPaymentService billPaymentService)
     {
         Console.WriteLine("(Enter 0 at any step to cancel)");
 
@@ -87,10 +90,10 @@ public static class DataMenu
                 return false;
             }
 
-            if (phone.Length != 11 || !phone.All(char.IsDigit))
+            if (!PhoneNumberValidator.IsValid(phone))
             {
                 Console.WriteLine(
-                    "Enter a valid 11-digit phone number.");
+                    "Enter a valid Nigerian mobile number.");
                 continue;
             }
 
@@ -99,7 +102,12 @@ public static class DataMenu
 
         TransactionResult result =
             DataService.Purchase(
-                current, network, phone, selectedPlan);
+                current,
+                network,
+                phone,
+                selectedPlan,
+                billPaymentService,
+                out string reference);
 
         if (result == TransactionResult.Success)
         {
@@ -107,6 +115,7 @@ public static class DataMenu
                 $"{selectedPlan.Name} sent to {phone}. " +
                 $"Balance: {current.Balance:N2}");
 
+            Console.WriteLine($"Payment reference: {reference}");
             return true;
         }
 
@@ -115,6 +124,13 @@ public static class DataMenu
             Console.WriteLine(
                 $"You don't have enough balance for this plan. " +
                 $"Your balance is {current.Balance:N2}.");
+        }
+        else if (result == TransactionResult.PaymentFailed)
+        {
+            Console.WriteLine(
+                "Data purchase failed. Your account was not debited.");
+
+            Console.WriteLine($"Payment reference: {reference}");
         }
         else
         {
