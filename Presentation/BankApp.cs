@@ -13,7 +13,9 @@ public static class BankApp
         IBankApiClient bankApiClient,
         InterbankOutgoingTransferService outgoingTransferService,
         AdminService adminService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        BillPaymentService billPaymentService
+        )
     {
         while (true)
         {
@@ -38,14 +40,15 @@ public static class BankApp
                     RunCustomer(
                         accounts,
                         bankApiClient,
-                        outgoingTransferService);
+                        outgoingTransferService,
+                        billPaymentService);
                     break;
 
                 case "3":
                     if (AuthenticateAdmin(configuration))
                     {
                         Console.WriteLine("\nAdmin login successful.");
-                        AdminMenu.Run(adminService);
+                        AdminMenu.Run(adminService, billPaymentService);
                     }
                     break;
 
@@ -90,7 +93,7 @@ public static class BankApp
                 return false;
 
             Console.Write("Admin PIN: ");
-            string pin = Console.ReadLine() ?? "";
+            string pin = PinInput.ReadHiddenPin();
 
             if (pin == "0")
                 return false;
@@ -109,7 +112,8 @@ public static class BankApp
     private static void RunCustomer(
         List<Account> accounts,
         IBankApiClient bankApiClient,
-        InterbankOutgoingTransferService outgoingTransferService)
+        InterbankOutgoingTransferService outgoingTransferService,
+        BillPaymentService billPaymentService)
     {
         Account? current = LoginMenu.Run(accounts);
 
@@ -166,11 +170,13 @@ public static class BankApp
                     break;
 
                 case "4":
-                    operationCompleted = AirtimeMenu.Run(current);
+                    operationCompleted = AirtimeMenu.Run(
+                        current,
+                        billPaymentService);
                     break;
 
                 case "5":
-                    operationCompleted = DataMenu.Run(current);
+                    operationCompleted = DataMenu.Run(current, billPaymentService);
                     break;
 
                 case "6":

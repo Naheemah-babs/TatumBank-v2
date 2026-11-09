@@ -1,10 +1,12 @@
 ﻿
+using TatumWelcome2.BLL;
+using TatumWelcome2.DTOs;
+
 namespace TatumWelcome2.Models;
 
 public class Account
 {
-    // One shared lock for all account balance changes
-    // within this running bank application.
+    
     private static readonly object BalanceLock = new();
 
     public string Name { get; set; } = string.Empty;
@@ -156,6 +158,61 @@ public class Account
                 Amount = amount,
                 Date = DateTime.Now,
                 Description = description
+            };
+
+            _transactions.Add(transaction);
+            _balance -= amount;
+
+            return TransactionResult.Success;
+        }
+    }
+
+
+
+
+
+    public TransactionResult ExecuteBillPayment(
+        decimal amount,
+        string reference,
+        string description,
+        Func<bool> approvePayment)
+    {
+        lock (BalanceLock)
+        {
+            if (string.IsNullOrWhiteSpace(reference))
+                return TransactionResult.PaymentFailed;
+
+            bool alreadyDebited = _transactions.Any(
+                transaction =>
+                    transaction.Type == TransactionType.Withdrawal &&
+                    transaction.Reference == reference);
+
+            if (alreadyDebited)
+            {
+                // Verify the repeated request with the provider.
+                // The provider rejects references reused with different details.
+                bool originalPaymentApproved = approvePayment();
+
+                return originalPaymentApproved
+                    ? TransactionResult.Success
+                    : TransactionResult.PaymentFailed;
+            }
+
+            TransactionResult check = CheckWithdrawCore(amount);
+
+            if (check != TransactionResult.Success)
+                return check;
+
+            if (!approvePayment())
+                return TransactionResult.PaymentFailed;
+
+            Transaction transaction = new Transaction
+            {
+                Type = TransactionType.Withdrawal,
+                Amount = amount,
+                Date = DateTime.Now,
+                Description = description,
+                Reference = reference
             };
 
             _transactions.Add(transaction);

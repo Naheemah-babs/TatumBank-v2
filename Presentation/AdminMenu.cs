@@ -6,7 +6,9 @@ namespace TatumWelcome2.Presentation;
 
 public static class AdminMenu
 {
-    public static void Run(AdminService adminService)
+    public static void Run(
+        AdminService adminService,
+        BillPaymentService billPaymentService)
     {
         while (true)
         {
@@ -15,6 +17,7 @@ public static class AdminMenu
             Console.WriteLine("1. Freeze account");
             Console.WriteLine("2. Unfreeze account");
             Console.WriteLine("3. Check account status");
+            Console.WriteLine("4. Bill payment testing mode");
             Console.WriteLine("0. Logout");
             Console.Write("Choose an option: ");
 
@@ -34,6 +37,10 @@ public static class AdminMenu
                     CheckAccountStatus(adminService);
                     break;
 
+                case "4":
+                    ChangePaymentMode(billPaymentService);
+                    break;
+
                 case "0":
                     Console.WriteLine("Admin logged out.");
                     return;
@@ -42,6 +49,54 @@ public static class AdminMenu
                     Console.WriteLine("Invalid option. Please try again.");
                     break;
             }
+        }
+    }
+
+    private static void ChangePaymentMode(
+        BillPaymentService billPaymentService)
+    {
+        while (true)
+        {
+            Console.WriteLine();
+            Console.WriteLine("===== BILL PAYMENT MODE =====");
+            Console.WriteLine(
+                $"Current mode: {billPaymentService.PaymentMode}");
+
+            Console.WriteLine("1. Random (80% success, 20% failure)");
+            Console.WriteLine("2. Force success");
+            Console.WriteLine("3. Force failure");
+            Console.WriteLine("0. Back");
+            Console.Write("Choose an option: ");
+
+            string choice = (Console.ReadLine() ?? "").Trim();
+
+            if (choice == "0")
+                return;
+
+            string mode = choice switch
+            {
+                "1" => "Random",
+                "2" => "Success",
+                "3" => "Failure",
+                _ => ""
+            };
+
+            if (mode == "")
+            {
+                Console.WriteLine("Invalid option. Please try again.");
+                continue;
+            }
+
+            bool updated = billPaymentService.SetPaymentMode(mode);
+
+            if (updated)
+            {
+                Console.WriteLine(
+                    $"Bill payment mode changed to {mode}.");
+                return;
+            }
+
+            Console.WriteLine("Unable to change payment mode.");
         }
     }
 
@@ -85,7 +140,9 @@ public static class AdminMenu
 
         string action = freeze ? "freeze" : "unfreeze";
 
-        Console.Write($"Are you sure you want to {action} this account? (yes/no): ");
+        Console.Write(
+            $"Are you sure you want to {action} this account? (yes/no): ");
+
         string confirmation =
             (Console.ReadLine() ?? "").Trim().ToLower();
 

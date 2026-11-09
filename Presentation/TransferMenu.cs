@@ -135,7 +135,8 @@ public static class TransferMenu
             while (pinAttempts < 3)
             {
                 Console.Write("Enter your PIN to confirm: ");
-                string pin = Console.ReadLine() ?? "";
+
+                string pin = PinInput.ReadHiddenPin();
 
                 if (pin == "0")
                 {
@@ -288,7 +289,8 @@ public static class TransferMenu
             while (pinAttempts < 3)
             {
                 Console.Write("Enter your PIN to confirm: ");
-                string pin = Console.ReadLine() ?? "";
+
+                string pin = PinInput.ReadHiddenPin();
 
                 if (pin == "0")
                 {

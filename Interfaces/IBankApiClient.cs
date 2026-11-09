@@ -16,4 +16,8 @@ public interface IBankApiClient
     Task<HttpResponseMessage> GetTransferStatusAsync(
         string bankUrl,
         string reference);
+
+    Task<HttpResponseMessage> SendBillPaymentAsync(
+        string bankUrl,
+        BillPaymentRequestDto request);
 }

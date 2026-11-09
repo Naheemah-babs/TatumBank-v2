@@ -75,8 +75,7 @@ public class InterbankOutgoingTransferService
                     return $"Transfer successful! Reference: {reference}";
                 }
 
-                // Your current receiving endpoint returns these
-                // responses before crediting the recipient.
+                
                 if (response.StatusCode == HttpStatusCode.BadRequest ||
                     response.StatusCode == HttpStatusCode.NotFound)
                 {

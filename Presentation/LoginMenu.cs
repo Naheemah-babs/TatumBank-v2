@@ -1,4 +1,5 @@
-﻿using TatumWelcome2.BLL;
+﻿
+using TatumWelcome2.BLL;
 using TatumWelcome2.Models;
 using TatumWelcome2.Services;
 
@@ -16,7 +17,7 @@ public static class LoginMenu
             string number = Console.ReadLine() ?? "";
 
             Console.Write("PIN: ");
-            string pin = Console.ReadLine() ?? "";
+            string pin = PinInput.ReadHiddenPin();
 
             Account? current =
                 AccountService.Login(accounts, number, pin);

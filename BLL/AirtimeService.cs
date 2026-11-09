@@ -1,4 +1,6 @@
-﻿using TatumWelcome2.Models;
+﻿
+using TatumWelcome2.DTOs;
+using TatumWelcome2.Models;
 
 namespace TatumWelcome2.BLL;
 
@@ -8,8 +10,12 @@ public static class AirtimeService
         Account account,
         string network,
         string phone,
-        decimal amount)
+        decimal amount,
+        BillPaymentService billPaymentService,
+        out string reference)
     {
+        reference = Guid.NewGuid().ToString("N");
+
         if (!DataPlans.Networks.Contains(network))
             return TransactionResult.InvalidNetwork;
 
@@ -19,8 +25,21 @@ public static class AirtimeService
         if (amount < 50)
             return TransactionResult.InvalidAmount;
 
-        return account.Withdraw(
-            amount,
-            $"Airtime {network} {phone}");
+        BillPaymentRequestDto request = new()
+        {
+            Reference = reference,
+            BankId = "BankA",
+            AccountNumber = account.AccountNumber,
+            PaymentType = "Airtime",
+            Network = network,
+            PhoneNumber = phone,
+            Amount = amount
+        };
+
+        return BillPurchaseService.Purchase(
+            account,
+            request,
+            billPaymentService,
+            $"Airtime {network} {phone} Ref: {reference}");
     }
 }
