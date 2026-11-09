@@ -13,6 +13,7 @@ Console.OutputEncoding = Encoding.UTF8;
 
 CultureInfo.DefaultThreadCurrentCulture =
     CultureInfo.GetCultureInfo("en-NG");
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddFilter(
@@ -26,26 +27,24 @@ builder.Logging.AddFilter(
 // Bank A API address.
 builder.WebHost.UseUrls("http://localhost:5000");
 
-// Shared in-memory account list.
+// Shared in-memory accounts.
 List<Account> accounts = AccountData.GetAccounts();
 
-// Repository.
 builder.Services.AddSingleton<IAccountRepository>(
     new AccountRepository(accounts));
 
-
-// HTTP communication.
 builder.Services.AddHttpClient<IBankApiClient, BankApiClient>();
 
-// Business logic services.
 builder.Services.AddSingleton<InterbankTransferService>();
 builder.Services.AddSingleton<InterbankOutgoingTransferService>();
 builder.Services.AddSingleton(new AdminService(accounts));
 builder.Services.AddSingleton<BillPaymentService>();
 
+// Automatic interbank reconciliation.
+builder.Services.AddHostedService<InterbankReconciliationService>();
+
 var app = builder.Build();
 
-// Resolve services.
 IBankApiClient bankApiClient =
     app.Services.GetRequiredService<IBankApiClient>();
 
@@ -58,7 +57,6 @@ AdminService adminService =
 BillPaymentService billPaymentService =
     app.Services.GetRequiredService<BillPaymentService>();
 
-// API endpoints.
 app.MapGet(
     "/health",
     () => "Tatum Bank API is running");
@@ -67,7 +65,6 @@ app.MapAccountEndpoints();
 app.MapInterbankTransferEndpoints();
 app.MapBillPaymentEndpoints();
 
-// Start API.
 var serverTask = app.RunAsync();
 
 try
